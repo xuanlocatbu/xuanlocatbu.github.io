@@ -1,0 +1,85 @@
+# -----------------------------------------------------------------------------
+#  Site settings
+# -----------------------------------------------------------------------------
+title:      "Xuan-Loc Huynh"
+name:       "Xuan-Loc Huynh"            # used in the header
+email:      "xlhuynh@bu.edu"
+description: >                     # a short blurb about you
+  PhD student in Mathematics…
+url:        "https://xuanlocatbu.github.io"
+baseurl:    ""                     # leave empty when publishing at root
+
+# -----------------------------------------------------------------------------
+#  GitHub / Deployment
+# -----------------------------------------------------------------------------
+github_username: xuanlocatbu
+repository:      xuanlocatbu.github.io
+branch:          gh-pages          # the branch GitHub Actions will build
+
+# -----------------------------------------------------------------------------
+#  Theme options (al-folio)
+# -----------------------------------------------------------------------------
+# (these are already part of the template; tweak as desired)
+theme_mode:     light              # or 'dark', or 'auto'
+font:           sans               # or 'serif'
+cover:          assets/cover.jpg   # your banner image (optional)
+
+# -----------------------------------------------------------------------------
+#  Plugins (required for remote theme & features)
+# -----------------------------------------------------------------------------
+plugins:
+  - jekyll-feed
+  - jekyll-remote-theme
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+remote_theme: alshedivat/al-folio  # pulls the al-folio theme
+
+# -----------------------------------------------------------------------------
+#  Collections (for your publications, talks, posts…)
+# -----------------------------------------------------------------------------
+collections:
+  publications:
+    output: true
+  talks:
+    output: true
+  posts:
+    output: true
+
+# -----------------------------------------------------------------------------
+#  Defaults
+# -----------------------------------------------------------------------------
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      permalink: "/:year/:month/:day/:slug/"
+
+# -----------------------------------------------------------------------------
+#  Social links (add/remove as needed)
+# -----------------------------------------------------------------------------
+social:
+  - icon: "github"
+    link: "https://github.com/xuanlocatbu"
+  - icon: "linkedin"
+    link: "https://www.linkedin.com/in/xuan-loc-huynh-9aa1b3246/"
+  - icon: "facebook"
+    link: "https://twitter.com/YOUR-HANDLE"
+
+# -----------------------------------------------------------------------------
+#  Build settings
+# -----------------------------------------------------------------------------
+markdown: kramdown
+highlighter: rouge
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - LICENSE
+
+# -----------------------------------------------------------------------------
+#  Optional: Google Analytics
+# -----------------------------------------------------------------------------
+# google_analytics: "UA-XXXXXXXX-X" 
