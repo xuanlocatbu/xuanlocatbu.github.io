@@ -53,11 +53,10 @@ a:hover { text-decoration: underline; }
 .nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   height: 60px;
 }
 
-.logo { font-weight: 700; font-size: 1.2rem; color: var(--text); }
 
 .nav-links {
   display: flex;
