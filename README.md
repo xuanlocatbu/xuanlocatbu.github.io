@@ -38,3 +38,14 @@ First-time setup on a new computer:
 ```
 python3 -m venv .venv && .venv/bin/pip install cryptography
 ```
+
+## Adding a photo
+
+```
+.venv/bin/python tools/add_photo.py ~/Downloads/IMG_1234.jpg "Me after my 20-minute run"
+```
+
+The photo is rotated upright, resized, and saved without its metadata (including
+GPS location). It appears at the top of the Photos page. Then commit and push.
+
+First-time setup also needs Pillow: `.venv/bin/pip install pillow`

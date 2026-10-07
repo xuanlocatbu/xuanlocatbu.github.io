@@ -105,6 +105,7 @@ PAGE = """<!DOCTYPE html>
         <li><a href="../index.html#about">About</a></li>
         <li><a href="../index.html#projects">Projects</a></li>
         <li><a href="index.html" aria-current="page">Writings</a></li>
+        <li><a href="../photos/index.html">Photos</a></li>
         <li><a href="../index.html#contact">Contact</a></li>
       </ul>
     </nav>
