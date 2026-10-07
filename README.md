@@ -2,7 +2,7 @@
 
 Personal website of Xuan-Loc Huynh — https://xuanlocatbu.github.io
 
-## Publishing a writing (passcode-protected)
+## Publishing a writing
 
 1. Write a plain text file in `_drafts/` (this folder is never committed), e.g. `_drafts/my-essay.txt`:
 
@@ -10,15 +10,18 @@ Personal website of Xuan-Loc Huynh — https://xuanlocatbu.github.io
    Title: My essay
    Date: 2026-10-06
    Summary: Optional one-line teaser
+   Public: yes
 
    First paragraph...
 
    Second paragraph...
    ```
 
-   The title, date and summary are public; only the body is encrypted.
+   Include `Public: yes` for a writing anyone can read. Leave that line out to
+   protect it with a passcode — then only the body is encrypted; the title, date
+   and summary are always public.
 
-2. Encrypt it (you'll be asked for a passcode):
+2. Publish it (for a protected writing you'll be asked for a passcode):
 
    ```
    .venv/bin/python tools/publish_writing.py _drafts/my-essay.txt

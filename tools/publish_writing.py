@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Encrypt a writing with a passcode and publish it to writings/.
+"""Publish a writing to writings/, optionally encrypted with a passcode.
 
 Usage:
-  .venv/bin/python tools/publish_writing.py _drafts/my-essay.txt   # encrypt one draft (asks for a passcode)
+  .venv/bin/python tools/publish_writing.py _drafts/my-essay.txt   # publish one draft
   .venv/bin/python tools/publish_writing.py --rebuild              # only refresh the list on writings/index.html
 
 Draft format (plain text, saved in _drafts/, which is never committed):
@@ -10,14 +10,16 @@ Draft format (plain text, saved in _drafts/, which is never committed):
   Title: My essay
   Date: 2026-10-06
   Summary: Optional one-line teaser
+  Public: yes          <- optional; leave out to protect it with a passcode
 
   First paragraph...
 
   Second paragraph...
 
-The title, date and summary are PUBLIC (they appear on the Writings list).
-Only the body is encrypted. The output file is named after the draft,
-so re-running on the same draft replaces the published version.
+Without "Public: yes" you'll be asked for a passcode and only the body is
+encrypted; the title, date and summary are always public (they appear on the
+Writings list). The output file is named after the draft, so re-running on the
+same draft replaces the published version.
 """
 import argparse
 import base64
@@ -95,6 +97,7 @@ PAGE = """<!DOCTYPE html>
   <meta name="writing-title" content="{{TITLE}}">
   <meta name="writing-date" content="{{DATE}}">
   <meta name="writing-summary" content="{{SUMMARY}}">
+  <meta name="writing-protected" content="{{PROTECTED}}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../style.css">
 </head>
@@ -104,9 +107,9 @@ PAGE = """<!DOCTYPE html>
       <ul class="nav-links">
         <li><a href="../index.html#about">About</a></li>
         <li><a href="../index.html#projects">Projects</a></li>
-        <li><a href="index.html" aria-current="page">Writings</a></li>
-        <li><a href="../photos/index.html">Photos</a></li>
         <li><a href="../index.html#contact">Contact</a></li>
+        <li><a href="../photos/index.html">Photos</a></li>
+        <li><a href="index.html" aria-current="page">Writings</a></li>
       </ul>
     </nav>
   </header>
@@ -116,16 +119,7 @@ PAGE = """<!DOCTYPE html>
     <h1 class="writing-title">{{TITLE}}</h1>
     <p class="writing-meta">{{PRETTY_DATE}}</p>
 
-    <form id="unlock" class="lock">
-      <p><i class="fa-solid fa-lock"></i> This writing is protected. Enter the passcode to read it.</p>
-      <div class="lock-row">
-        <input id="passcode" type="password" placeholder="Passcode" autocomplete="off" required aria-label="Passcode">
-        <button class="btn" type="submit">Unlock</button>
-      </div>
-      <p id="lock-error" class="lock-error" hidden>Incorrect passcode. Please try again.</p>
-    </form>
-
-    <article id="content" class="prose" hidden></article>
+{{CONTENT}}
   </main>
 
   <footer class="site-footer">
@@ -134,10 +128,30 @@ PAGE = """<!DOCTYPE html>
     </div>
   </footer>
 
-  <script id="payload" type="application/json">{{PAYLOAD}}</script>
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+{{LOCK_SCRIPT}}</body>
+</html>
+"""
 
+PUBLIC_CONTENT = """    <article class="prose">
+{{BODY}}
+    </article>"""
+
+LOCKED_CONTENT = """    <form id="unlock" class="lock">
+      <p><i class="fa-solid fa-lock"></i> This writing is protected. Enter the passcode to read it.</p>
+      <div class="lock-row">
+        <input id="passcode" type="password" placeholder="Passcode" autocomplete="off" required aria-label="Passcode">
+        <button class="btn" type="submit">Unlock</button>
+      </div>
+      <p id="lock-error" class="lock-error" hidden>Incorrect passcode. Please try again.</p>
+    </form>
+
+    <article id="content" class="prose" hidden></article>"""
+
+LOCK_SCRIPT = """  <script id="payload" type="application/json">{{PAYLOAD}}</script>
+  <script>
     const payload = JSON.parse(document.getElementById("payload").textContent);
     const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
     const form = document.getElementById("unlock");
@@ -171,20 +185,25 @@ PAGE = """<!DOCTYPE html>
       }
     });
   </script>
-</body>
-</html>
 """
 
 
-def render_page(meta, payload):
+def render_page(meta, body_html, passcode):
     esc = lambda s: html.escape(s, quote=True)
+    if passcode is None:
+        content, script = PUBLIC_CONTENT.replace("{{BODY}}", body_html), ""
+    else:
+        content = LOCKED_CONTENT
+        script = LOCK_SCRIPT.replace("{{PAYLOAD}}", json.dumps(encrypt(body_html, passcode)))
     return (
-        PAGE.replace("{{TITLE}}", esc(meta["title"]))
+        PAGE.replace("{{CONTENT}}", content)
+        .replace("{{LOCK_SCRIPT}}", script)
+        .replace("{{PROTECTED}}", "no" if passcode is None else "yes")
+        .replace("{{TITLE}}", esc(meta["title"]))
         .replace("{{DATE}}", esc(meta["date"]))
         .replace("{{PRETTY_DATE}}", esc(pretty_date(meta["date"])))
         .replace("{{SUMMARY}}", esc(meta["summary"]))
         .replace("{{AUTHOR}}", AUTHOR)
-        .replace("{{PAYLOAD}}", json.dumps(payload))
     )
 
 
@@ -202,19 +221,21 @@ def rebuild_index():
         title = read_meta(page, "writing-title")
         if not title:
             continue
-        entries.append((read_meta(page, "writing-date"), title, read_meta(page, "writing-summary"), path.name))
+        protected = read_meta(page, "writing-protected") != "no"
+        entries.append((read_meta(page, "writing-date"), title, read_meta(page, "writing-summary"), path.name, protected))
     entries.sort(reverse=True)
 
     if entries:
         items = []
-        for iso, title, summary, filename in entries:
+        for iso, title, summary, filename, protected in entries:
             # Values were HTML-escaped when the page was written, so they are safe to reuse as-is.
             summary_html = f"\n            <p>{summary}</p>" if summary else ""
+            lock = '<i class="fa-solid fa-lock"></i> ' if protected else ""
             items.append(
                 f"""        <li>
           <a class="card writing-card" href="{filename}">
             <h3>{title}</h3>
-            <p class="writing-meta"><i class="fa-solid fa-lock"></i> {html.escape(pretty_date(html.unescape(iso)))}</p>{summary_html}
+            <p class="writing-meta">{lock}{html.escape(pretty_date(html.unescape(iso)))}</p>{summary_html}
           </a>
         </li>"""
             )
@@ -246,10 +267,11 @@ def main():
 
     if args.draft:
         meta, body = parse_draft(args.draft)
-        passcode = args.passcode or ask_passcode()
+        public = meta.get("public", "").lower() in ("yes", "true")
+        passcode = None if public else (args.passcode or ask_passcode())
         out = WRITINGS / (re.sub(r"[^a-z0-9-]+", "-", args.draft.stem.lower()).strip("-") + ".html")
-        out.write_text(render_page(meta, encrypt(body_to_html(body), passcode)), encoding="utf-8")
-        print(f"Published {out.relative_to(ROOT)}")
+        out.write_text(render_page(meta, body_to_html(body), passcode), encoding="utf-8")
+        print(f"Published {out.relative_to(ROOT)}" + (" (public, no passcode)" if public else " (passcode-protected)"))
     elif not args.rebuild:
         parser.error("give a draft file, or --rebuild")
 
