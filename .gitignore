@@ -1,0 +1,8 @@
+# Unencrypted drafts of writings — never publish these
+_drafts/
+
+# Local Python environment
+.venv/
+__pycache__/
+
+.DS_Store
