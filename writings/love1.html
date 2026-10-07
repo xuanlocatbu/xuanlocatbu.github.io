@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>A Lesson In Love — Xuan-Loc Huynh</title>
+  <meta name="writing-title" content="A Lesson In Love">
+  <meta name="writing-date" content="2026-10-03">
+  <meta name="writing-summary" content="">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container nav">
+      <ul class="nav-links">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="index.html" aria-current="page">Writings</a></li>
+        <li><a href="../photos/index.html">Photos</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section container">
+    <a class="back-link" href="index.html">← All writings</a>
+    <h1 class="writing-title">A Lesson In Love</h1>
+    <p class="writing-meta">October 3, 2026</p>
+
+    <form id="unlock" class="lock">
+      <p><i class="fa-solid fa-lock"></i> This writing is protected. Enter the passcode to read it.</p>
+      <div class="lock-row">
+        <input id="passcode" type="password" placeholder="Passcode" autocomplete="off" required aria-label="Passcode">
+        <button class="btn" type="submit">Unlock</button>
+      </div>
+      <p id="lock-error" class="lock-error" hidden>Incorrect passcode. Please try again.</p>
+    </form>
+
+    <article id="content" class="prose" hidden></article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Xuan-Loc Huynh</p>
+    </div>
+  </footer>
+
+  <script id="payload" type="application/json">{"salt": "LXf8Bgw+iSdVwpzD6YqMzw==", "iv": "q3jlo6pIZ63UpJsH", "ct": "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", "iter": 600000}</script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const payload = JSON.parse(document.getElementById("payload").textContent);
+    const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const form = document.getElementById("unlock");
+    const input = document.getElementById("passcode");
+    const error = document.getElementById("lock-error");
+    const button = form.querySelector("button");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      error.hidden = true;
+      button.disabled = true;
+      button.textContent = "Unlocking…";
+      try {
+        const baseKey = await crypto.subtle.importKey(
+          "raw", new TextEncoder().encode(input.value), "PBKDF2", false, ["deriveKey"]);
+        const key = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: bytes(payload.salt), iterations: payload.iter, hash: "SHA-256" },
+          baseKey, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+        const plain = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: bytes(payload.iv) }, key, bytes(payload.ct));
+        const content = document.getElementById("content");
+        content.innerHTML = new TextDecoder().decode(plain);
+        content.hidden = false;
+        form.hidden = true;
+      } catch {
+        error.hidden = false;
+        input.select();
+      } finally {
+        button.disabled = false;
+        button.textContent = "Unlock";
+      }
+    });
+  </script>
+</body>
+</html>
